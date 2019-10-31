@@ -27,6 +27,8 @@ export default class MessageField extends React.Component {
         }
     }
 
+
+
     handleSendMessage = () => {
         const { messages, input } = this.state;
         this.setState({
@@ -59,6 +61,7 @@ export default class MessageField extends React.Component {
 
                 <div style={ { width: '100%', display: 'flex' } }>
                     <TextField
+                        className="input"
                         name="input"
                         fullWidth={ true }
                         hintText="Введите сообщение"
@@ -68,7 +71,7 @@ export default class MessageField extends React.Component {
                         onKeyUp={ (event) => this.handleKeyUp(event, this.state.input) }
                     />
                     <FloatingActionButton onClick={ () => this.handleSendMessage(this.state.input) }>
-                        <SendIcon />
+                        <SendIcon className="SendIcon"/>
                     </FloatingActionButton>
                 </div>
 
