@@ -62,7 +62,7 @@ export default class MessageField extends React.Component {
                         name="input"
                         fullWidth={ true }
                         hintText="Введите сообщение"
-                        style={ { fontSize: '24px' } }
+                        style={ { fontSize: '24px' }}
                         onChange={ this.handleChange }
                         value={ this.state.input }
                         onKeyUp={ (event) => this.handleKeyUp(event, this.state.input) }
