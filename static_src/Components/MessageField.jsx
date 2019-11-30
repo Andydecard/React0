@@ -36,7 +36,7 @@ export default class MessageField extends React.Component {
     };
 
     handleChange = (event) => {
-        this.setState({ 'input': event.target.value });
+        this.setState({ [event.target.name]: event.target.value });
     };
 
     handleKeyUp = (event, message) => {
@@ -45,33 +45,32 @@ export default class MessageField extends React.Component {
         }
     };
 
+    handleClick = (message) => {
+        this.handleSendMessage(message)
+    };
 
     render() {
-        const { messages } = this.state;
+        const messageElements = this.state.messages.map((message, index) => (
+            <Message key={ index } text={ message.text } sender={ message.sender } />));
 
-        const messageElements = messages.map(message => <Message key={ message.text } text={ message.text } sender={ message.sender }/>);
-
-        return (
-            <div className="layout">
+        return [
             <div className="message-field">
                 { messageElements }
+            </div>,
+            <div style={ { width: '100%', display: 'flex' } }>
+                <TextField
+                    name="input"
+                    fullWidth={ true }
+                    hintText="Введите сообщение"
+                    style={ { fontSize: '22px' } }
+                    onChange={ this.handleChange }
+                    value={ this.state.input }
+                    onKeyUp={ (event) => this.handleKeyUp(event, this.state.input) }
+                />
+                <FloatingActionButton onClick={ () => this.handleClick(this.state.input) }>
+                    <SendIcon />
+                </FloatingActionButton>
             </div>
-                <div style={ { width: '100%', display: 'flex' } }>
-                    <TextField
-                        name="input"
-                        fullWidth={ true }
-                        hintText="Введите сообщение"
-                        style={ { fontSize: '22px' } }
-                        onChange={ this.handleChange }
-                        value={ this.state.input }
-                        onKeyUp={ (event) => this.handleKeyUp(event, this.state.input) }
-                    />
-                    <FloatingActionButton onClick={ () => this.handleSendMessage(this.state.input) }>
-                        <SendIcon />
-                    </FloatingActionButton>
-                </div>
-
-        </div>
-    )
-}
+        ]
+    }
 }
