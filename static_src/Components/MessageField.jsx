@@ -1,16 +1,8 @@
-
 import React from 'react';
 import { TextField, FloatingActionButton } from 'material-ui';
 import SendIcon from 'material-ui/svg-icons/content/send';
 import Message from './Message';
 import '../styles/styles.css';
-
-
-const botAnswers = ['Отстань, я робот', 'Кто такая Сири????!!!', 'Поговорите лучше с Алисой', 'Тебе конец, кожаный мешок'];
-
-function randomChoice(arr) {
-    return arr[Math.floor(arr.length * Math.random())];
-}
 
 export default class MessageField extends React.Component {
     state = {
@@ -19,20 +11,17 @@ export default class MessageField extends React.Component {
     };
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.messages.length < this.state.messages.length
-            && this.state.messages[this.state.messages.length - 1].sender === 'me')
-         {
-            setTimeout(() => this.setState({ 'messages': [...this.state.messages,
-                    { text: randomChoice(botAnswers), sender: 'bot'}] }), 1000);
+        if (prevState.messages.length < this.state.messages.length &&
+            this.state.messages[this.state.messages.length - 1].sender === 'me') {
+            setTimeout(() =>
+                    this.setState({
+                        messages: [ ...this.state.messages, {text: 'Не приставай ко мне, я робот!', sender: 'bot'} ] }),
+                1000);
         }
     }
 
-    handleSendMessage = () => {
-        const { messages, input } = this.state;
-        this.setState({
-            'messages': [...messages, {text: input, sender: 'me'}],
-            'input': ''
-        });
+    handleClick = (message) => {
+        this.sendMessage(message)
     };
 
     handleChange = (event) => {
@@ -41,12 +30,15 @@ export default class MessageField extends React.Component {
 
     handleKeyUp = (event, message) => {
         if (event.keyCode === 13) { // Enter
-            this.handleSendMessage(message)
+            this.sendMessage(message)
         }
     };
 
-    handleClick = (message) => {
-        this.handleSendMessage(message)
+    sendMessage = (message) => {
+        this.setState({
+            messages: [ ...this.state.messages, {text: message, sender: 'me'} ],
+            input: '',
+        });
     };
 
     render() {
