@@ -1,77 +1,88 @@
-
 import React from 'react';
+import PropTypes from "prop-types";
 import { TextField, FloatingActionButton } from 'material-ui';
 import SendIcon from 'material-ui/svg-icons/content/send';
 import Message from './Message';
 import '../styles/styles.css';
 
-
-const botAnswers = ['Отстань, я робот', 'Кто такая Сири????!!!', 'Поговорите лучше с Алисой', 'Тебе конец, кожаный мешок'];
-
-function randomChoice(arr) {
-    return arr[Math.floor(arr.length * Math.random())];
-}
-
 export default class MessageField extends React.Component {
+    static propTypes = {
+        chatId: PropTypes.number.isRequired,
+    };
+
+    static defaultProps = {
+        chatId: 1,
+    };
+
     state = {
-        messages: [{ text: "Привет!", sender: 'bot' }, { text: "Как дела?", sender: 'bot' }],
+        chats: [[1,2], [], []],
+        messages: [
+            { text: "Привет!", sender: 'bot' },
+            { text: "Как дела?", sender: 'bot' }
+            ],
         input: '',
     };
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.messages.length < this.state.messages.length
-            && this.state.messages[this.state.messages.length - 1].sender === 'me')
-         {
-            setTimeout(() => this.setState({ 'messages': [...this.state.messages,
-                    { text: randomChoice(botAnswers), sender: 'bot'}] }), 1000);
+        if (prevState.messages.length < this.state.messages.length &&
+           this.state.messages[this.state.messages.length - 1].sender === 'me') {
+            setTimeout(() =>
+                this.sendMessage('Не приставай ко мне, я робот!', 'bot'),
+                1000);
         }
     }
 
-    handleSendMessage = () => {
-        const { messages, input } = this.state;
-        this.setState({
-            'messages': [...messages, {text: input, sender: 'me'}],
-            'input': ''
-        });
-    };
-
     handleChange = (event) => {
-        this.setState({ 'input': event.target.value });
+        this.setState({ [event.target.name]: event.target.value });
     };
 
-    handleKeyUp = (event, message) => {
+    handleKeyUp = (event, message, sender) => {
         if (event.keyCode === 13) { // Enter
-            this.handleSendMessage(message)
+            this.sendMessage(message, sender)
         }
     };
 
+    sendMessage = (message, sender) => {
+        const { chats } = this.state;
+        chats[this.props.chatId - 1] =
+            [...chats[this.props.chatId - 1], this.state.messages.length + 1];
+
+        this.setState({
+            messages: [ ...this.state.messages, {text: message, sender} ],
+            chats: chats,
+            input: '',
+        });
+    };
 
     render() {
-        const { messages } = this.state;
+        const { chats, messages } = this.state;
+        const{ chatId } = this.props;
 
-        const messageElements = messages.map(message => <Message key={ message.text } text={ message.text } sender={ message.sender }/>);
+        const messageElements = chats[chatId - 1].map(messageId => (
+            <Message
+                key={ messageId }
+                text={ messages[messageId - 1].text }
+                sender={ messages[messageId - 1].sender }
+            />));
 
-        return (
-            <div className="layout">
+        return [
             <div className="message-field">
                 { messageElements }
+            </div>,
+            <div style={ { width: '100%', display: 'flex' } }>
+                <TextField
+                    name="input"
+                    fullWidth={ true }
+                    hintText="Введите сообщение"
+                    style={ { fontSize: '22px' } }
+                    onChange={ this.handleChange }
+                    value={ this.state.input }
+                    onKeyUp={ (event) => this.handleKeyUp(event, input, 'me') }
+                />
+                <FloatingActionButton onClick={ () => this.sendMessage(this.state.input, 'me')}>
+                    <SendIcon />
+                </FloatingActionButton>
             </div>
-                <div style={ { width: '100%', display: 'flex' } }>
-                    <TextField
-                        name="input"
-                        fullWidth={ true }
-                        hintText="Введите сообщение"
-                        style={ { fontSize: '22px' } }
-                        onChange={ this.handleChange }
-                        value={ this.state.input }
-                        onKeyUp={ (event) => this.handleKeyUp(event, this.state.input) }
-                    />
-                    <FloatingActionButton onClick={ () => this.handleSendMessage(this.state.input) }>
-                        <SendIcon />
-                    </FloatingActionButton>
-                </div>
-
-        </div>
-    )
-}
+        ]
+    }
 }
